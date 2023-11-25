@@ -1,0 +1,14 @@
+{
+	"name": "blockchain",
+	"version": "1.0.0",
+	"description": "A Dapp for voting in competitions",
+	"scripts": {},
+	"author": "bg5fxp_JF (Jacob F)",
+	"license": "ISC",
+	"devDependencies": {
+		"@nomicfoundation/hardhat-toolbox": "^4.0.0",
+		"dotenv": "^16.3.1",
+		"hardhat": "^2.19.1",
+		"hardhat-deploy": "^0.11.44"
+	}
+}
