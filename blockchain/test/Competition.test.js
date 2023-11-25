@@ -133,4 +133,59 @@ describe("Competition Unit Tests", function () {
 			).to.be.revertedWithCustomError(competition, "VotingAlreadyStarted");
 		});
 	});
+
+	describe("inputWeightage", function () {
+		it("should revert if sender does not have capabilites", async function () {
+			const competition_account5 = await competition.connect(account5);
+
+			await expect(
+				competition_account5.inputWeightage(1, 2)
+			).to.be.revertedWithCustomError(competition_account5, "NotApproved");
+		});
+		it("should store weightages successfully (owner)", async function () {
+			await competition.inputWeightage(1, 1);
+
+			assert.equal(Number(await competition.getJudgeWeight()), 1);
+			assert.equal(Number(await competition.getAudienceWeight()), 1);
+		});
+		it("should store weightages successfully (approved sender)", async function () {
+			const competition_account1 = await competition.connect(account1);
+			await competition_account1.getCapabilites();
+
+			await competition_account1.inputWeightage(1, 1);
+
+			assert.equal(Number(await competition_account1.getJudgeWeight()), 1);
+			assert.equal(Number(await competition_account1.getAudienceWeight()), 1);
+		});
+		it("should successfully update voting status", async function () {
+			const expectedStatus = [
+				false /* hasSelectedJudges */,
+				true /* hasInputWeight*/,
+				false /* hasSelectedFinalists */,
+				false /* hasStartedVoting */,
+			];
+
+			await competition.inputWeightage(1, 1);
+			assert.equal(
+				await competition.getVotingStatus(),
+				expectedStatus.toString()
+			);
+		});
+		it("should revert if started the voting", async function () {
+			const judges = [account1.address, account2.address];
+			const finalists = [account3.address, account4.address];
+
+			await competition.selectJudges(judges);
+			await competition.selectFinalists(finalists);
+			await competition.inputWeightage(1, 1);
+
+			await competition.startVoting();
+
+			await expect(
+				competition.inputWeightage(1, 2)
+			).to.be.revertedWithCustomError(competition, "VotingAlreadyStarted");
+		});
+	});
+
+	describe("selectFinalists", async function () {});
 });

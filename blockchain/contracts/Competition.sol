@@ -189,4 +189,12 @@ contract Competition {
     function getVotingStatus() public view returns (VotingStatus memory) {
         return votingStatus;
     }
+
+    function getJudgeWeight() public view returns (uint256) {
+        return judgeWeight;
+    }
+
+    function getAudienceWeight() public view returns (uint256) {
+        return audienceWeight;
+    }
 }
