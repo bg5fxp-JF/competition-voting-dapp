@@ -187,5 +187,103 @@ describe("Competition Unit Tests", function () {
 		});
 	});
 
-	describe("selectFinalists", async function () {});
+	describe("selectFinalists", async function () {
+		it("should revert if sender does not have capabilites", async function () {
+			const competition_account5 = await competition.connect(account5);
+			const finalists = [account1.address, account2.address];
+			await expect(
+				competition_account5.selectFinalists(finalists)
+			).to.be.revertedWithCustomError(competition_account5, "NotApproved");
+		});
+
+		it("should revert if the finalists length doesn't meet requirements", async function () {
+			const finalists = [
+				account1.address,
+				account2.address,
+				account3.address,
+				account4.address,
+				account5.address,
+			];
+			await expect(
+				competition.selectFinalists(finalists)
+			).to.be.revertedWithCustomError(competition, "TooBig");
+			await expect(
+				competition.selectFinalists([account1.address])
+			).to.be.revertedWithCustomError(competition, "NotEnough");
+		});
+
+		it("should revert if one of the finalists has approved(owner) capabilities", async function () {
+			const finalists = [account1.address, account2.address, account3.address];
+			const finalists2 = [deployer.address, account2.address, account3.address];
+
+			const competition_account1 = await competition.connect(account1);
+			await competition_account1.getCapabilites();
+
+			await expect(
+				competition.selectFinalists(finalists)
+			).to.be.revertedWithCustomError(competition, "AlreadyApproved");
+			await expect(
+				competition.selectFinalists(finalists2)
+			).to.be.revertedWithCustomError(competition, "AlreadyOwner");
+		});
+
+		it("should be reverted if one of finalist is already a judge", async function () {
+			const judges = [account1.address, account2.address, account3.address];
+			const finalists = [account3.address, account4.address];
+
+			await competition.selectJudges(judges);
+
+			await expect(
+				competition.selectFinalists(finalists)
+			).to.be.revertedWithCustomError(competition, "AlreadyJudge");
+		});
+
+		it("should successfully update voting status (owner)", async function () {
+			const expectedStatus = [
+				false /* hasSelectedJudges */,
+				false /* hasInputWeight*/,
+				true /* hasSelectedFinalists */,
+				false /* hasStartedVoting */,
+			];
+			const finalists = [account1.address, account2.address, account3.address];
+
+			await competition.selectFinalists(finalists);
+			assert.equal(
+				await competition.getVotingStatus(),
+				expectedStatus.toString()
+			);
+		});
+		it("should successfully update voting status (approved sender)", async function () {
+			const expectedStatus = [
+				false /* hasSelectedJudges */,
+				false /* hasInputWeight*/,
+				true /* hasSelectedFinalists */,
+				false /* hasStartedVoting */,
+			];
+			const finalists = [account2.address, account3.address];
+
+			const competition_account1 = await competition.connect(account1);
+			await competition_account1.getCapabilites();
+
+			await competition_account1.selectFinalists(finalists);
+			assert.equal(
+				await competition_account1.getVotingStatus(),
+				expectedStatus.toString()
+			);
+		});
+		it("should revert if started the voting", async function () {
+			const judges = [account1.address, account2.address];
+			const finalists = [account3.address, account4.address];
+
+			await competition.selectJudges(judges);
+			await competition.selectFinalists(finalists);
+			await competition.inputWeightage(1, 1);
+
+			await competition.startVoting();
+
+			await expect(
+				competition.selectFinalists(finalists)
+			).to.be.revertedWithCustomError(competition, "VotingAlreadyStarted");
+		});
+	});
 });

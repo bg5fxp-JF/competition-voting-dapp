@@ -106,7 +106,7 @@ contract Competition {
     //this function defines the addresses of finalists
     function selectFinalists(address[] memory arrayOfAddresses) public onlyApproved {
         if (votingStatus.hasStartedVoting) revert VotingAlreadyStarted();
-        if (arrayOfAddresses.length < 1) revert NotEnough();
+        if (arrayOfAddresses.length <= 1) revert NotEnough();
         if (arrayOfAddresses.length > 4) revert TooBig();
 
         for (uint256 i; i < arrayOfAddresses.length; i++) {
