@@ -12,7 +12,7 @@ error AlreadyJudge();
 error NotFinalist();
 error TooBig();
 error CannotVote();
-error Started();
+error VotingAlreadyStarted();
 error Ended();
 
 contract Competition {
@@ -56,7 +56,7 @@ contract Competition {
     }
 
     modifier onlyApproved() {
-        if (!isApprovedForOwnerCapabilities[msg.sender] || msg.sender != i_owner) revert NotApproved();
+        if (!(isApprovedForOwnerCapabilities[msg.sender] || msg.sender == i_owner)) revert NotApproved();
         _;
     }
 
@@ -78,14 +78,14 @@ contract Competition {
     //this function defines the addresses of accounts of judges
     function selectJudges(address[] memory arrayOfAddresses) public onlyApproved {
         if (arrayOfAddresses.length < 1) revert NotEnough();
-        if (votingStatus.hasStartedVoting) revert Started();
+        if (votingStatus.hasStartedVoting) revert VotingAlreadyStarted();
         if (arrayOfAddresses.length > 3) revert TooBig();
 
         for (uint256 i; i < arrayOfAddresses.length; i++) {
             if (finalistAudienceVotes[arrayOfAddresses[i]] > 0 || finalistJudgeVotes[arrayOfAddresses[i]] > 0) {
                 revert AlreadyFinalist();
             }
-            if (arrayOfAddresses[i] == msg.sender) revert AlreadyOwner();
+            if (arrayOfAddresses[i] == i_owner) revert AlreadyOwner();
             if (isApprovedForOwnerCapabilities[arrayOfAddresses[i]]) revert AlreadyApproved();
             isJudge[arrayOfAddresses[i]] = true;
         }
@@ -95,7 +95,7 @@ contract Competition {
 
     //this function adds the weightage for judges and audiences
     function inputWeightage(uint256 judgeWeightage, uint256 audienceWeightage) public onlyApproved {
-        if (votingStatus.hasStartedVoting) revert Started();
+        if (votingStatus.hasStartedVoting) revert VotingAlreadyStarted();
 
         judgeWeight = judgeWeightage;
         audienceWeight = audienceWeightage;
@@ -105,13 +105,13 @@ contract Competition {
 
     //this function defines the addresses of finalists
     function selectFinalists(address[] memory arrayOfAddresses) public onlyApproved {
-        if (votingStatus.hasStartedVoting) revert Started();
+        if (votingStatus.hasStartedVoting) revert VotingAlreadyStarted();
         if (arrayOfAddresses.length < 1) revert NotEnough();
         if (arrayOfAddresses.length > 4) revert TooBig();
 
         for (uint256 i; i < arrayOfAddresses.length; i++) {
             if (isJudge[arrayOfAddresses[i]]) revert AlreadyJudge();
-            if (arrayOfAddresses[i] == msg.sender) revert AlreadyOwner();
+            if (arrayOfAddresses[i] == i_owner) revert AlreadyOwner();
             if (isApprovedForOwnerCapabilities[arrayOfAddresses[i]]) revert AlreadyApproved();
             finalistJudgeVotes[arrayOfAddresses[i]] = 1;
             finalistAudienceVotes[arrayOfAddresses[i]] = 1;
