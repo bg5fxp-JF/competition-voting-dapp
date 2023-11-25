@@ -286,4 +286,101 @@ describe("Competition Unit Tests", function () {
 			).to.be.revertedWithCustomError(competition, "VotingAlreadyStarted");
 		});
 	});
+
+	describe("startVoting", function () {
+		it("should revert if sender does not have capabilites", async function () {
+			const competition_account5 = await competition.connect(account5);
+
+			const judges = [account1.address, account2.address];
+			const finalists = [account3.address, account4.address];
+
+			await competition.selectJudges(judges);
+			await competition.selectFinalists(finalists);
+			await competition.inputWeightage(1, 1);
+
+			await expect(
+				competition_account5.startVoting()
+			).to.be.revertedWithCustomError(competition_account5, "NotApproved");
+		});
+
+		it("should revert if judges arent selected", async function () {
+			const finalists = [account3.address, account4.address];
+
+			await competition.selectFinalists(finalists);
+			await competition.inputWeightage(1, 1);
+
+			await expect(competition.startVoting()).to.be.revertedWithCustomError(
+				competition,
+				"NotReady"
+			);
+		});
+		it("should revert if finalists arent selected", async function () {
+			const judges = [account3.address, account4.address];
+
+			await competition.selectJudges(judges);
+			await competition.inputWeightage(1, 1);
+
+			await expect(competition.startVoting()).to.be.revertedWithCustomError(
+				competition,
+				"NotReady"
+			);
+		});
+		it("should revert if weightages arent selected", async function () {
+			const judges = [account1.address, account2.address];
+			const finalists = [account3.address, account4.address];
+
+			await competition.selectJudges(judges);
+			await competition.selectFinalists(finalists);
+
+			await expect(competition.startVoting()).to.be.revertedWithCustomError(
+				competition,
+				"NotReady"
+			);
+		});
+		it("should successfully update voting status (owner)", async function () {
+			const expectedStatus = [
+				true /* hasSelectedJudges */,
+				true /* hasInputWeight*/,
+				true /* hasSelectedFinalists */,
+				true /* hasStartedVoting */,
+			];
+			const judges = [account1.address, account2.address];
+			const finalists = [account3.address, account4.address];
+
+			await competition.selectJudges(judges);
+			await competition.selectFinalists(finalists);
+			await competition.inputWeightage(1, 1);
+
+			await competition.startVoting();
+
+			assert.equal(
+				await competition.getVotingStatus(),
+				expectedStatus.toString()
+			);
+		});
+		it("should successfully update voting status (approved sender)", async function () {
+			const expectedStatus = [
+				true /* hasSelectedJudges */,
+				true /* hasInputWeight*/,
+				true /* hasSelectedFinalists */,
+				true /* hasStartedVoting */,
+			];
+			const judges = [account2.address];
+			const finalists = [account3.address, account4.address];
+
+			const competition_account1 = await competition.connect(account1);
+			await competition_account1.getCapabilites();
+
+			await competition_account1.selectJudges(judges);
+			await competition_account1.selectFinalists(finalists);
+			await competition_account1.inputWeightage(1, 1);
+
+			await competition_account1.startVoting();
+
+			assert.equal(
+				await competition_account1.getVotingStatus(),
+				expectedStatus.toString()
+			);
+		});
+	});
 });
