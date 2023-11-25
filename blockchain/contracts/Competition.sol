@@ -197,4 +197,23 @@ contract Competition {
     function getAudienceWeight() public view returns (uint256) {
         return audienceWeight;
     }
+
+    function getCurrentVote() public view returns (address) {
+        return vote[msg.sender];
+    }
+
+    function getJudgeVotesOfFinalist(address finalist) public view returns (uint256) {
+        if (finalistAudienceVotes[finalist] < 1 || finalistJudgeVotes[finalist] < 1) revert NotFinalist();
+        return finalistJudgeVotes[finalist] - 1;
+    }
+
+    function getAudienceVotesOfFinalist(address finalist) public view returns (uint256) {
+        if (finalistAudienceVotes[finalist] < 1 || finalistJudgeVotes[finalist] < 1) revert NotFinalist();
+        return finalistAudienceVotes[finalist] - 1;
+    }
+
+    function getTotalVotesOfFinalist(address finalist) public view returns (uint256) {
+        if (finalistAudienceVotes[finalist] < 1 || finalistJudgeVotes[finalist] < 1) revert NotFinalist();
+        return (finalistJudgeVotes[finalist] + finalistAudienceVotes[finalist]) - 2;
+    }
 }

@@ -383,4 +383,70 @@ describe("Competition Unit Tests", function () {
 			);
 		});
 	});
+
+	describe("castVote", function () {
+		it("should revert if the competition is not ready (not all conditions have been met)", async function () {
+			const competition_account5 = await competition.connect(account5);
+
+			await expect(
+				competition_account5.castVote(account3.address)
+			).to.be.revertedWithCustomError(competition_account5, "NotReady");
+		});
+
+		describe("castVote with condidions met", function () {
+			let competition_account1, competition_account5, competition_account6;
+			beforeEach(async function () {
+				const judges = [account1.address, account2.address];
+				const finalists = [account3.address, account4.address];
+
+				await competition.selectJudges(judges);
+				await competition.selectFinalists(finalists);
+				await competition.inputWeightage(1, 1);
+
+				await competition.startVoting();
+
+				competition_account1 = await competition.connect(account1);
+				competition_account5 = await competition.connect(account5);
+				competition_account6 = await competition.connect(account6);
+			});
+
+			it("should revert if the vote is for a non finalist", async function () {
+				await expect(
+					competition_account5.castVote(account6.address)
+				).to.be.revertedWithCustomError(competition_account5, "NotFinalist");
+			});
+			it("should correctly count judges vote for finalist", async function () {
+				await competition_account1.castVote(account3.address);
+				await competition_account5.castVote(account3.address);
+				await competition_account6.castVote(account4.address);
+
+				assert.equal(
+					await competition_account1.getCurrentVote(),
+					account3.address
+				);
+				assert.equal(
+					await competition_account5.getCurrentVote(),
+					account3.address
+				);
+				assert.equal(
+					await competition_account6.getCurrentVote(),
+					account4.address
+				);
+			});
+			it("should allow senders to change votes", async function () {
+				await competition_account1.castVote(account3.address);
+				assert.equal(
+					await competition_account1.getCurrentVote(),
+					account3.address
+				);
+
+				await competition_account1.castVote(account4.address);
+
+				assert.equal(
+					await competition_account1.getCurrentVote(),
+					account4.address
+				);
+			});
+		});
+	});
 });
