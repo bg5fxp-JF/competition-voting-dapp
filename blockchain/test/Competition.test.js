@@ -447,6 +447,87 @@ describe("Competition Unit Tests", function () {
 					account4.address
 				);
 			});
+			it("should revert if voting is ended", async function () {
+				await competition.endVoting();
+
+				await expect(
+					competition.castVote(account3.address)
+				).to.be.revertedWithCustomError(competition, "NotReady");
+			});
+		});
+	});
+
+	describe("endVoting", function () {
+		it("should revert if sender does not have capabilites", async function () {
+			const competition_account5 = await competition.connect(account5);
+
+			await expect(
+				competition_account5.endVoting()
+			).to.be.revertedWithCustomError(competition_account5, "NotApproved");
+		});
+		it("should revert if the voting never started", async function () {
+			await expect(competition.endVoting()).to.be.revertedWithCustomError(
+				competition,
+				"NotReady"
+			);
+		});
+
+		describe("endVoting with conditions met", function () {
+			let competition_account1, competition_account5, competition_account6;
+			beforeEach(async function () {
+				const judges = [account1.address, account2.address];
+				const finalists = [account3.address, account4.address];
+
+				await competition.selectJudges(judges);
+				await competition.selectFinalists(finalists);
+				await competition.inputWeightage(1, 1);
+
+				await competition.startVoting();
+
+				competition_account1 = await competition.connect(account1);
+				competition_account5 = await competition.connect(account5);
+				competition_account6 = await competition.connect(account6);
+			});
+
+			it("should reset voting status", async function () {
+				const expectedStatus = [
+					false /* hasSelectedJudges */,
+					false /* hasInputWeight*/,
+					false /* hasSelectedFinalists */,
+					false /* hasStartedVoting */,
+				];
+
+				await competition.endVoting();
+
+				assert.equal(
+					await competition.getVotingStatus(),
+					expectedStatus.toString()
+				);
+			});
+			it("should give multiple winners", async function () {
+				const expectedResult = [account3.address, account4.address];
+				await competition.endVoting();
+
+				assert.equal(await competition.showResult(), expectedResult.toString());
+			});
+			it("should give sole winner", async function () {
+				const expectedResult = [account3.address];
+				await competition.castVote(account3.address);
+				await competition_account1.castVote(account4.address);
+				await competition_account5.castVote(account3.address);
+				await competition.endVoting();
+
+				assert.equal(await competition.showResult(), expectedResult.toString());
+			});
+		});
+
+		describe("showResult", async function () {
+			it("should revert if there's never been a winner", async function () {
+				await expect(competition.showResult()).to.be.revertedWithCustomError(
+					competition,
+					"NotReady"
+				);
+			});
 		});
 	});
 });
