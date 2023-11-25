@@ -13,9 +13,9 @@ error NotFinalist();
 error TooBig();
 error CannotVote();
 error VotingAlreadyStarted();
-error Ended();
 
 contract Competition {
+    // Type declerations
     struct VotingStatus {
         bool hasSelectedJudges;
         bool hasInputWeight;
@@ -23,6 +23,7 @@ contract Competition {
         bool hasStartedVoting;
     }
 
+    // State Variavles
     address private immutable i_owner;
     VotingStatus private votingStatus;
 
@@ -39,6 +40,17 @@ contract Competition {
 
     uint256 private judgeWeight;
     uint256 private audienceWeight;
+
+    // Events
+    event CapabilitiesGranted(address indexed grantedTo);
+    event CapabilitiesRemoved(address indexed removedFrom);
+    event JudgesSelected(address[] judges);
+    event WeightageInputted(uint256 judgeWeightage, uint256 audienceWeightage);
+    event FinalistsSelected(address[] finalists);
+    event VotingStarted();
+    event VoteCast(address indexed voter, address indexed finalistVotedFor);
+    event VotingEnded();
+    event WinnersDeclared(address[] winners);
 
     constructor() {
         i_owner = msg.sender;
@@ -68,11 +80,15 @@ contract Competition {
         }
         if (isApprovedForOwnerCapabilities[msg.sender]) revert AlreadyApproved();
         isApprovedForOwnerCapabilities[msg.sender] = true;
+
+        emit CapabilitiesGranted(msg.sender);
     }
 
     function removeCapabilites(address adr) public onlyOwner {
         if (!isApprovedForOwnerCapabilities[adr]) revert NotApproved();
         isApprovedForOwnerCapabilities[adr] = false;
+
+        emit CapabilitiesRemoved(adr);
     }
 
     //this function defines the addresses of accounts of judges
@@ -91,6 +107,8 @@ contract Competition {
         }
 
         votingStatus.hasSelectedJudges = true;
+
+        emit JudgesSelected(arrayOfAddresses);
     }
 
     //this function adds the weightage for judges and audiences
@@ -101,6 +119,8 @@ contract Competition {
         audienceWeight = audienceWeightage;
 
         votingStatus.hasInputWeight = true;
+
+        emit WeightageInputted(judgeWeightage, audienceWeightage);
     }
 
     //this function defines the addresses of finalists
@@ -119,6 +139,8 @@ contract Competition {
         }
 
         votingStatus.hasSelectedFinalists = true;
+
+        emit FinalistsSelected(arrayOfAddresses);
     }
 
     //this function strats the voting process
@@ -127,6 +149,8 @@ contract Competition {
             revert NotReady();
         }
         votingStatus.hasStartedVoting = true;
+
+        emit VotingStarted();
     }
 
     //this function is used to cast the vote
@@ -136,6 +160,8 @@ contract Competition {
         if (finalistAudienceVotes[finalistAddress] < 1 || finalistJudgeVotes[finalistAddress] < 1) revert NotFinalist();
         vote[msg.sender] = finalistAddress;
         if (!hasVoted[msg.sender]) voters.push(msg.sender);
+
+        emit VoteCast(msg.sender, finalistAddress);
     }
 
     //this function ends the process of voting
@@ -169,6 +195,9 @@ contract Competition {
                 }
             }
         }
+
+        emit VotingEnded();
+        emit WinnersDeclared(winners);
     }
 
     //this function returns the winner/winners
@@ -200,6 +229,10 @@ contract Competition {
 
     function getCurrentVote() public view returns (address) {
         return vote[msg.sender];
+    }
+
+    function getVoters() public view returns (address[] memory) {
+        return voters;
     }
 
     function getJudgeVotesOfFinalist(address finalist) public view returns (uint256) {
