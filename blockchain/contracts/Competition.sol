@@ -215,6 +215,11 @@ contract Competition {
         return i_owner;
     }
 
+    function getIsApproved(address adr) public view returns (bool) {
+        if (adr == i_owner) return true;
+        return isApprovedForOwnerCapabilities[adr];
+    }
+
     function getVotingStatus() public view returns (VotingStatus memory) {
         return votingStatus;
     }
