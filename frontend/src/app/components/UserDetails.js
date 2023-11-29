@@ -1,16 +1,32 @@
 "use client";
-import react, { useState } from "react";
-import { useAccount, useDisconnect, useEnsName } from "wagmi";
+import { useEffect, useState } from "react";
+import { useAccount, useDisconnect, useConnect /**useEnsName*/ } from "wagmi";
 
 import { FaUser, FaWindowClose } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
+import { MetaMaskConnector } from "wagmi/connectors/metaMask";
+import { useRouter } from "next/navigation";
 
 export default function UserDetails() {
 	const { address, isConnected } = useAccount();
-	const { data: ensName } = useEnsName({ address });
+	// const { data: ensName } = useEnsName({ address });
 	const { disconnect } = useDisconnect();
+	const { connect } = useConnect({
+		connector: new MetaMaskConnector(),
+	});
 
 	const [isOpen, setIsOpen] = useState(false);
+
+	const router = useRouter();
+
+	useEffect(() => {
+		if (isConnected) return;
+		if (typeof window !== "undefined") {
+			if (window.localStorage.getItem("connected")) {
+				connect();
+			}
+		}
+	}, [address]);
 
 	function formatAddress(address) {
 		return address.slice(0, 6) + "..." + address.slice(address.length - 4);
@@ -44,13 +60,16 @@ export default function UserDetails() {
 									<div className="flex items-center gap-x-3">
 										Connected To:
 										<div className="p-2 rounded bg-secondaryColor">
-											{ensName ?? formatAddress(address)}
+											{/* {ensName ?? formatAddress(address)} */}
+											{formatAddress(address)}
 										</div>
 									</div>
 									<button
 										onClick={() => {
 											disconnect();
 											setIsOpen(!isOpen);
+											window.localStorage.removeItem("connected");
+											router.push("/");
 										}}
 										className="bg-secondaryColor p-2 rounded transition-all active:scale-125"
 									>
