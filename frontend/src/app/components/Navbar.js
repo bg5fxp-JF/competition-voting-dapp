@@ -16,7 +16,7 @@ export default function Navbar() {
 					className={`transition-all hover:scale-125 ${
 						isConnected ? "" : " text-gray-400 pointer-events-none"
 					}`}
-					href="/"
+					href="/set-competition"
 				>
 					Set Up Competition
 				</Link>
@@ -24,7 +24,7 @@ export default function Navbar() {
 					className={`transition-all hover:scale-125 ${
 						isConnected ? "" : " text-gray-400 pointer-events-none"
 					}`}
-					href="/"
+					href="/vote"
 				>
 					Cast Vote
 				</Link>
@@ -32,7 +32,7 @@ export default function Navbar() {
 					className={`transition-all hover:scale-125 ${
 						isConnected ? "" : " text-gray-400 pointer-events-none"
 					}`}
-					href="/"
+					href="/winners"
 				>
 					View Winners
 				</Link>
