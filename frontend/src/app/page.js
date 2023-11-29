@@ -1,15 +1,46 @@
 "use client";
-import { useAccount, useConnect } from "wagmi";
+import { useAccount, useConnect, useContractRead, useNetwork } from "wagmi";
 import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 import { FaArrowDown } from "react-icons/fa";
 import Link from "next/link";
+import { useEffect } from "react";
+import { abi, contractAddresses } from "./constants";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
 	const { connect } = useConnect({
 		connector: new MetaMaskConnector(),
 	});
 
-	const { isConnected } = useAccount();
+	const { chain } = useNetwork();
+
+	const { address, isConnected } = useAccount();
+
+	const chainId = isConnected ? chain.id : 0;
+	const competitionAddress =
+		chainId in contractAddresses ? contractAddresses[chainId][0] : null;
+
+	const { data, isError, isLoading } = useContractRead({
+		address: competitionAddress,
+		abi: abi,
+		functionName: "getIsApproved",
+		args: [address],
+		chainId: chainId,
+	});
+
+	// useEffect(()=> {
+	// 	if (isConnected) {
+
+	// 	}
+	// },[chain])
+
+	const router = useRouter();
+
+	useEffect(() => {
+		if (data) {
+			router.push("/set-competition");
+		}
+	}, [data]);
 
 	if (isConnected) {
 		return (
@@ -41,7 +72,11 @@ export default function Home() {
 					<h4 className="text-lg">To Get Started</h4>
 					<FaArrowDown className=" animate-bounce" />
 					<button
-						onClick={() => connect()}
+						onClick={() => {
+							connect();
+
+							window.localStorage.setItem("connected", "inject");
+						}}
 						className="bg-primaryColor p-4 rounded transition-all active:scale-125"
 					>
 						Connect Wallet
