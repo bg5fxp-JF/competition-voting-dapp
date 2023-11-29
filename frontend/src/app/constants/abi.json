@@ -181,6 +181,13 @@
 		"type": "function"
 	},
 	{
+		"inputs": [{ "internalType": "address", "name": "adr", "type": "address" }],
+		"name": "getIsApproved",
+		"outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{ "internalType": "address", "name": "finalist", "type": "address" }
 		],
