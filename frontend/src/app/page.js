@@ -50,13 +50,16 @@ export default function Home() {
 						You can now get capabilites to set up a competiton
 					</h4>
 					<FaArrowDown className=" animate-bounce" />
-					<button className="bg-primaryColor p-4 rounded transition-all active:scale-125">
+					<button className="bg-primaryColor dark:bg-primaryColor/70 p-4 rounded transition-all active:scale-125">
 						Get Capabilites
 					</button>
 
 					<h4 className="pt-5 text-lg ">
 						Or you can{" "}
-						<Link href="/" className="text-primaryColor underline">
+						<Link
+							href="/"
+							className="text-primaryColor dark:text-primaryColor/70 underline"
+						>
 							cast a vote
 						</Link>
 					</h4>
@@ -77,7 +80,7 @@ export default function Home() {
 
 							window.localStorage.setItem("connected", "inject");
 						}}
-						className="bg-primaryColor p-4 rounded transition-all active:scale-125"
+						className="bg-primaryColor dark:bg-primaryColor/70 p-4 rounded transition-all active:scale-125"
 					>
 						Connect Wallet
 					</button>

@@ -39,7 +39,7 @@ export default function UserDetails() {
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					exit={{ opacity: 0 }}
-					className="absolute top-36 right-6 z-10  p-5 rounded text-sm bg-primaryColor shadow-md transition-transform sm:right-16 sm:text-reg"
+					className="absolute top-36 right-6 z-10  p-5 rounded text-sm bg-primaryColor dark:bg-primaryColor/70 shadow-md transition-transform sm:right-16 sm:text-reg"
 				>
 					<div>
 						{isOpen ? (
@@ -59,7 +59,7 @@ export default function UserDetails() {
 								>
 									<div className="flex items-center gap-x-3">
 										Connected To:
-										<div className="p-2 rounded bg-secondaryColor">
+										<div className="p-2 rounded bg-secondaryColor dark:bg-primaryColor/20">
 											{/* {ensName ?? formatAddress(address)} */}
 											{formatAddress(address)}
 										</div>
@@ -71,7 +71,7 @@ export default function UserDetails() {
 											window.localStorage.removeItem("connected");
 											router.push("/");
 										}}
-										className="bg-secondaryColor p-2 rounded transition-all active:scale-125"
+										className="bg-secondaryColor dark:bg-primaryColor/20 p-2 rounded transition-all active:scale-125"
 									>
 										Disconnect Wallet
 									</button>

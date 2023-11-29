@@ -18,7 +18,7 @@ export default function FinalistCard({ img }) {
 					show: { y: 0 },
 				}}
 				whileHover="inital"
-				className="absolute flex justify-center items-center min-h-[50%]  bottom-0 w-full bg-white/50"
+				className="absolute flex justify-center items-center min-h-[50%]  bottom-0 w-full bg-white/50 dark:bg-slate-950/50"
 			>
 				<p className="text-6xl font-bold">Vote</p>
 			</motion.div>

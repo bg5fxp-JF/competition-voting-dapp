@@ -2,6 +2,8 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 import { Providers } from "./providers";
 import UserDetails from "./components/UserDetails";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import ToggleMode from "./components/ToggleMode";
 
 export const metadata = {
 	title: "Create Next App",
@@ -12,11 +14,19 @@ export default function RootLayout({ children }) {
 	return (
 		<html lang="en">
 			<body>
-				<Providers>
-					<Navbar />
-					<UserDetails />
-					{children}
-				</Providers>
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="system"
+					enableSystem
+					disableTransitionOnChange
+				>
+					<Providers>
+						<Navbar />
+						<UserDetails />
+						{children}
+						<ToggleMode />
+					</Providers>
+				</ThemeProvider>
 			</body>
 		</html>
 	);
