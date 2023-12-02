@@ -14,7 +14,7 @@ export default function ToggleMode() {
 	const { setTheme } = useTheme();
 
 	return (
-		<div className="absolute bottom-10 right-6 sm:right-16 sm:text-reg">
+		<div className="fixed bottom-10 right-6 sm:right-16 sm:text-reg">
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<button className="p-5 rounded text-sm bg-primaryColor dark:bg-primaryColor/70 shadow-md ">

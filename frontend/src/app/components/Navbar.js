@@ -7,7 +7,7 @@ export default function Navbar() {
 	const { isConnected } = useAccount();
 
 	return (
-		<header className="w-full absolute z-10">
+		<header className="w-full absolute z-10 top-0">
 			<h1 className="py-4 text-center text-2xl font-bold sm:text-4xl">
 				<Link href="/">Competition Voting DApp</Link>
 			</h1>

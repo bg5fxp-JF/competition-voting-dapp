@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function FinalistCard({ img }) {
 	return (
-		<div className="relative rounded  shadow-md overflow-hidden">
+		<div className=" group relative rounded  shadow-md overflow-hidden">
 			<Image
 				src={img}
 				alt=""
@@ -12,16 +12,9 @@ export default function FinalistCard({ img }) {
 				height={500}
 				className="object-cover "
 			/>
-			<motion.div
-				variants={{
-					intial: { y: -500 },
-					show: { y: 0 },
-				}}
-				whileHover="inital"
-				className="absolute flex justify-center items-center min-h-[50%]  bottom-0 w-full bg-white/50 dark:bg-slate-950/50"
-			>
-				<p className="text-6xl font-bold">Vote</p>
-			</motion.div>
+			<div className="absolute flex justify-center   items-center min-h-[50%] transition-all translate-y-full bottom-0 w-full bg-white/50 dark:bg-slate-950/50 cursor-pointer group-hover:-translate-y-[0.5]">
+				<p className="text-6xl font-bold group-active:text-white">Vote</p>
+			</div>
 		</div>
 	);
 }
