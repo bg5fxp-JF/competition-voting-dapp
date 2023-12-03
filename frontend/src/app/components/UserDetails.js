@@ -39,7 +39,7 @@ export default function UserDetails() {
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					exit={{ opacity: 0 }}
-					className="fixed top-36 right-6 z-10  p-5 rounded text-sm bg-primaryColor dark:bg-primaryColor/70 shadow-md transition-transform sm:right-16 sm:text-reg"
+					className="fixed bottom-36 right-6 z-10  p-5 rounded text-sm bg-primaryColor dark:bg-primaryColor/70 shadow-md transition-transform sm:right-16 sm:text-reg"
 				>
 					<div>
 						{isOpen ? (
