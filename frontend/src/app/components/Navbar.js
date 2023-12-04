@@ -2,9 +2,11 @@
 import Link from "next/link";
 import React from "react";
 import { useAccount } from "wagmi";
+import { useApprovedData } from "../context/ApprovedContext";
 
 export default function Navbar() {
 	const { isConnected } = useAccount();
+	const { isApproved } = useApprovedData();
 
 	return (
 		<header className="w-full absolute z-10 top-0">
@@ -14,7 +16,9 @@ export default function Navbar() {
 			<nav className="flex justify-center items-center max-w-[1440px] mx-auto gap-x-7 px-6 py-2 text-center text-sm  bg-transparent sm:gap-x-24 sm:px-16 sm:text-reg">
 				<Link
 					className={`transition-all hover:scale-125 ${
-						isConnected ? "" : " text-gray-400 pointer-events-none"
+						isConnected && isApproved
+							? ""
+							: " text-gray-400 pointer-events-none"
 					}`}
 					href="/set-competition"
 				>

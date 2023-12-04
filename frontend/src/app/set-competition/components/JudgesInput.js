@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { MinusIcon, PlusIcon } from "@radix-ui/react-icons";
 
-export default function JudgesInput() {
+export default function JudgesInput({ isDisabled }) {
 	const [judges, setJudges] = useState([""]);
 
 	function handleJudgeAdd() {
@@ -25,10 +25,15 @@ export default function JudgesInput() {
 			{judges.map((judge, index) => {
 				return (
 					<div key={index} className="flex gap-x-3 ">
-						<div className="p-2 rounded shadow-md w-full">
+						<div
+							className={`p-2 rounded shadow-md w-full ${
+								isDisabled && "bg-[#fafafa]"
+							} `}
+						>
 							<input
 								placeholder="Enter an address"
 								className=" focus-visible:outline-none "
+								disabled={isDisabled}
 								type="text"
 								required
 								value={judge}
@@ -36,7 +41,7 @@ export default function JudgesInput() {
 							/>
 						</div>
 
-						{judges.length > 1 && (
+						{judges.length > 1 && !isDisabled && (
 							<button
 								onClick={() => handleJudgeRemove(index)}
 								className="p-2 rounded  bg-primaryColor dark:bg-primaryColor/70 shadow-md "
@@ -47,7 +52,7 @@ export default function JudgesInput() {
 					</div>
 				);
 			})}
-			{judges.length < 3 && (
+			{judges.length < 3 && !isDisabled && (
 				<button
 					onClick={() => handleJudgeAdd()}
 					className="flex p-2  justify-center rounded  bg-primaryColor dark:bg-primaryColor/70 shadow-md "

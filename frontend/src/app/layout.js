@@ -4,6 +4,7 @@ import { Providers } from "./providers";
 import UserDetails from "./components/UserDetails";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ToggleMode from "./components/ToggleMode";
+import ApprovedContextProvider from "./context/ApprovedContext";
 
 export const metadata = {
 	title: "Create Next App",
@@ -21,10 +22,12 @@ export default function RootLayout({ children }) {
 					disableTransitionOnChange
 				>
 					<Providers>
-						<Navbar />
-						<UserDetails />
-						{children}
-						<ToggleMode />
+						<ApprovedContextProvider>
+							<Navbar />
+							<UserDetails />
+							{children}
+							<ToggleMode />
+						</ApprovedContextProvider>
 					</Providers>
 				</ThemeProvider>
 			</body>

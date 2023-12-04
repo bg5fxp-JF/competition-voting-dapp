@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { MinusIcon, PlusIcon } from "@radix-ui/react-icons";
 
-export default function FinalistInput() {
+export default function FinalistInput({ isDisabled }) {
 	const [finalists, setFinalists] = useState([""]);
 
 	function handleFinalistAdd() {
@@ -26,10 +26,17 @@ export default function FinalistInput() {
 			{finalists.map((finalist, index) => {
 				return (
 					<div key={index} className="flex gap-x-3">
-						<div className="p-2 rounded shadow-md  w-full">
+						<div
+							className={`p-2 rounded shadow-md w-full ${
+								isDisabled && "bg-[#fafafa]"
+							} `}
+						>
 							<input
 								placeholder="Enter an address"
-								className=" focus-visible:outline-none "
+								className={` focus-visible:outline-none ${
+									isDisabled && "bg-[#fafafa]"
+								} `}
+								disabled={isDisabled}
 								type="text"
 								required
 								value={finalist}
@@ -37,7 +44,7 @@ export default function FinalistInput() {
 							/>
 						</div>
 
-						{finalists.length > 1 && (
+						{finalists.length > 1 && !isDisabled && (
 							<button
 								onClick={() => handleFinalistRemove(index)}
 								className="p-2 rounded  bg-primaryColor dark:bg-primaryColor/70 shadow-md "
@@ -48,7 +55,7 @@ export default function FinalistInput() {
 					</div>
 				);
 			})}
-			{finalists.length < 3 && (
+			{finalists.length < 3 && !isDisabled && (
 				<button
 					onClick={() => handleFinalistAdd()}
 					className="flex p-2  justify-center rounded  bg-primaryColor dark:bg-primaryColor/70 shadow-md "

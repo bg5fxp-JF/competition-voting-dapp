@@ -4,43 +4,25 @@ import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 import { FaArrowDown } from "react-icons/fa";
 import Link from "next/link";
 import { useEffect } from "react";
-import { abi, contractAddresses } from "./constants";
+
 import { useRouter } from "next/navigation";
+import { useApprovedData } from "./context/ApprovedContext";
 
 export default function Home() {
 	const { connect } = useConnect({
 		connector: new MetaMaskConnector(),
 	});
 
-	const { chain } = useNetwork();
-
-	const { address, isConnected } = useAccount();
-
-	const chainId = isConnected ? chain.id : 0;
-	const competitionAddress =
-		chainId in contractAddresses ? contractAddresses[chainId][0] : null;
-
-	const { data, isError, isLoading } = useContractRead({
-		address: competitionAddress,
-		abi: abi,
-		functionName: "getIsApproved",
-		args: [address],
-		chainId: chainId,
-	});
-
-	// useEffect(()=> {
-	// 	if (isConnected) {
-
-	// 	}
-	// },[chain])
+	const { isApproved } = useApprovedData();
+	const { isConnected } = useAccount();
 
 	const router = useRouter();
 
 	useEffect(() => {
-		if (data) {
+		if (isApproved) {
 			router.push("/set-competition");
 		}
-	}, [data]);
+	}, [isApproved]);
 
 	if (isConnected) {
 		return (

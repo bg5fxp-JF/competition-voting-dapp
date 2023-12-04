@@ -1,16 +1,20 @@
 "use client";
 import { useState } from "react";
 
-export default function WeightageInput() {
+export default function WeightageInput({ isDisabled }) {
 	const [judgeWeight, setJudgeWeight] = useState(0);
 	const [finalistWeight, setFinalistWeight] = useState(0);
+
 	return (
 		<div className="flex flex-col gap-3">
-			<div className="p-2 rounded shadow-md ">
+			<div className={`p-2 rounded shadow-md ${isDisabled && "bg-[#fafafa]"} `}>
 				<input
 					placeholder="Enter Judge Weight"
-					className=" focus-visible:outline-none "
+					className={` focus-visible:outline-none ${
+						isDisabled && "bg-[#fafafa]"
+					} `}
 					type="number"
+					disabled={isDisabled}
 					min={0.1}
 					required
 					onChange={(e) => {
@@ -18,10 +22,13 @@ export default function WeightageInput() {
 					}}
 				/>
 			</div>
-			<div className="p-2 rounded shadow-md ">
+			<div className={`p-2 rounded shadow-md ${isDisabled && "bg-[#fafafa]"} `}>
 				<input
 					placeholder="Enter Finalist Weight"
-					className=" focus-visible:outline-none "
+					className={` focus-visible:outline-none ${
+						isDisabled && "bg-[#fafafa]"
+					} `}
+					disabled={isDisabled}
 					type="number"
 					min={0.1}
 					required
