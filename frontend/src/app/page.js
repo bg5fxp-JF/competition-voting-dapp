@@ -1,5 +1,5 @@
 "use client";
-import { useAccount, useConnect, useContractRead, useNetwork } from "wagmi";
+import { useAccount, useConnect, useContractWrite, useNetwork } from "wagmi";
 import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 import { FaArrowDown } from "react-icons/fa";
 import Link from "next/link";
@@ -7,6 +7,7 @@ import { useEffect } from "react";
 
 import { useRouter } from "next/navigation";
 import { useApprovedData } from "./context/ApprovedContext";
+import { abi, contractAddresses } from "./constants";
 
 export default function Home() {
 	const { connect } = useConnect({
@@ -15,8 +16,19 @@ export default function Home() {
 
 	const { isApproved } = useApprovedData();
 	const { isConnected } = useAccount();
+	const { chain } = useNetwork();
+
+	const chainId = isConnected ? chain.id : 0;
+	const competitionAddress =
+		chainId in contractAddresses ? contractAddresses[chainId][0] : null;
 
 	const router = useRouter();
+
+	const { write } = useContractWrite({
+		address: competitionAddress,
+		abi: abi,
+		functionName: "getCapabilites",
+	});
 
 	useEffect(() => {
 		if (isApproved) {
@@ -32,14 +44,19 @@ export default function Home() {
 						You can now get capabilites to set up a competiton
 					</h4>
 					<FaArrowDown className=" animate-bounce" />
-					<button className="bg-primaryColor dark:bg-primaryColor/70 p-4 rounded transition-all active:scale-125">
+					<button
+						onClick={() => {
+							write();
+						}}
+						className="bg-primaryColor dark:bg-primaryColor/70 p-4 rounded transition-all active:scale-125"
+					>
 						Get Capabilites
 					</button>
 
 					<h4 className="pt-5 text-lg ">
 						Or you can{" "}
 						<Link
-							href="/"
+							href="/vote"
 							className="text-primaryColor dark:text-primaryColor/70 underline"
 						>
 							cast a vote
