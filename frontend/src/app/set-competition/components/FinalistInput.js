@@ -1,9 +1,39 @@
 "use client";
 import { useState } from "react";
 import { MinusIcon, PlusIcon } from "@radix-ui/react-icons";
+import { useAccount, useContractWrite, useNetwork } from "wagmi";
+import { abi, contractAddresses } from "@/app/constants";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function FinalistInput({ isDisabled }) {
 	const [finalists, setFinalists] = useState([""]);
+	const { toast } = useToast();
+
+	const { chain } = useNetwork();
+	const { isConnected } = useAccount();
+
+	const chainId = isConnected ? chain.id : 0;
+	const competitionAddress =
+		chainId in contractAddresses ? contractAddresses[chainId][0] : null;
+
+	const { write } = useContractWrite({
+		address: competitionAddress,
+		abi: abi,
+		functionName: "selectFinalists",
+		args: [finalists],
+		onError(error) {
+			toast({
+				variant: "destructive",
+				title: "Uh oh! Something went wrong.",
+				description: error.message,
+			});
+		},
+		onSuccess() {
+			toast({
+				title: "Successfuly Selected Finalists",
+			});
+		},
+	});
 
 	function handleFinalistAdd() {
 		setFinalists([...finalists, ""]);
@@ -27,14 +57,14 @@ export default function FinalistInput({ isDisabled }) {
 				return (
 					<div key={index} className="flex gap-x-3">
 						<div
-							className={`p-2 rounded shadow-md w-full ${
-								isDisabled && "bg-[#fafafa]"
+							className={`p-2 rounded shadow-md w-full dark:bg-gray-700 ${
+								isDisabled && "bg-[#fafafa] dark:bg-gray-800"
 							} `}
 						>
 							<input
 								placeholder="Enter an address"
-								className={` focus-visible:outline-none ${
-									isDisabled && "bg-[#fafafa]"
+								className={` dark:bg-gray-700 focus-visible:outline-none w-full ${
+									isDisabled && "bg-[#fafafa] dark:bg-gray-800 "
 								} `}
 								disabled={isDisabled}
 								type="text"
@@ -56,12 +86,22 @@ export default function FinalistInput({ isDisabled }) {
 				);
 			})}
 			{finalists.length < 3 && !isDisabled && (
-				<button
-					onClick={() => handleFinalistAdd()}
-					className="flex p-2  justify-center rounded  bg-primaryColor dark:bg-primaryColor/70 shadow-md "
-				>
-					<PlusIcon />
-				</button>
+				<div className="flex gap-x-2">
+					<button
+						onClick={() => handleFinalistAdd()}
+						className="flex p-2 w-full justify-center rounded  bg-primaryColor dark:bg-primaryColor/70 shadow-md "
+					>
+						<PlusIcon width={20} height={20} />
+					</button>
+					<button
+						onClick={() => write()}
+						className={`flex p-2 w-full  justify-center text-sm  rounded  bg-primaryColor dark:bg-primaryColor/70 shadow-md transition-all ${
+							finalists[0].length == 42 ? "" : "hidden"
+						} `}
+					>
+						Submit
+					</button>
+				</div>
 			)}
 		</div>
 	);
