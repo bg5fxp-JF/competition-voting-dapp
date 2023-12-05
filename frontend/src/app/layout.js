@@ -5,6 +5,7 @@ import UserDetails from "./components/UserDetails";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ToggleMode from "./components/ToggleMode";
 import ApprovedContextProvider from "./context/ApprovedContext";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata = {
 	title: "Create Next App",
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
 							<Navbar />
 							<UserDetails />
 							{children}
+							<Toaster />
 							<ToggleMode />
 						</ApprovedContextProvider>
 					</Providers>
