@@ -4,7 +4,7 @@ import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 
-const { chains, publicClient, webSocketPublicClient } = configureChains(
+const { chains, publicClient } = configureChains(
 	[localhost, sepolia],
 	// [publicProvider()]
 	/**sepolia,*/
@@ -15,5 +15,4 @@ export const config = createConfig({
 	autoConnect: false,
 	connectors: [new MetaMaskConnector({ chains })],
 	publicClient,
-	webSocketPublicClient,
 });
