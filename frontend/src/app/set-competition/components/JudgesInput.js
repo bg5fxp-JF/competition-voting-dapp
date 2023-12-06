@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MinusIcon, PlusIcon } from "@radix-ui/react-icons";
 import { useAccount, useContractWrite, useNetwork } from "wagmi";
 import { abi, contractAddresses } from "@/app/constants";
@@ -51,6 +51,10 @@ export default function JudgesInput({ isDisabled }) {
 		setJudges(list);
 	}
 
+	useEffect(() => {
+		if (isDisabled) setJudges(window.localStorage.getItem("judges").split(","));
+	}, [isDisabled]);
+
 	return (
 		<div className="flex flex-col gap-4  transition-all">
 			{judges.map((judge, index) => {
@@ -95,7 +99,10 @@ export default function JudgesInput({ isDisabled }) {
 					</button>
 
 					<button
-						onClick={() => write()}
+						onClick={() => {
+							write();
+							window.localStorage.setItem("judges", judges);
+						}}
 						className={`flex p-2 w-full  justify-center text-sm  rounded  bg-primaryColor dark:bg-primaryColor/70 shadow-md transition-all ${
 							judges[0].length == 42 ? "" : "hidden"
 						} `}

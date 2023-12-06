@@ -27,14 +27,21 @@ export default function EndButton({ isDisabled }) {
 		},
 		onSuccess() {
 			toast({
-				title: "Successfuly Started Competition",
+				title: "Successfuly Ended Competition",
 			});
 		},
 	});
+
 	return (
 		<button
 			disabled={isDisabled}
-			onClick={() => write()}
+			onClick={() => {
+				write();
+				window.localStorage.removeItem("judges");
+				window.localStorage.removeItem("finalists");
+				window.localStorage.removeItem("judgeWeight");
+				window.localStorage.removeItem("audienceWeight");
+			}}
 			className={`mx-auto p-2 rounded border border-primaryColor dark:bg-primaryColor/70 shadow-md ${
 				isDisabled && "bg-[#fafafa] dark:bg-primaryColor/10"
 			}  `}

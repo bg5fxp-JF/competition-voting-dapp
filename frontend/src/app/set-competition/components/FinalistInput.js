@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MinusIcon, PlusIcon } from "@radix-ui/react-icons";
 import { useAccount, useContractWrite, useNetwork } from "wagmi";
 import { abi, contractAddresses } from "@/app/constants";
@@ -51,6 +51,11 @@ export default function FinalistInput({ isDisabled }) {
 		setFinalists(list);
 	}
 
+	useEffect(() => {
+		if (isDisabled)
+			setFinalists(window.localStorage.getItem("finalists").split(","));
+	}, [isDisabled]);
+
 	return (
 		<div className="flex flex-col gap-4 transition-all">
 			{finalists.map((finalist, index) => {
@@ -85,7 +90,7 @@ export default function FinalistInput({ isDisabled }) {
 					</div>
 				);
 			})}
-			{finalists.length < 3 && !isDisabled && (
+			{finalists.length < 4 && !isDisabled && (
 				<div className="flex gap-x-2">
 					<button
 						onClick={() => handleFinalistAdd()}
@@ -94,9 +99,12 @@ export default function FinalistInput({ isDisabled }) {
 						<PlusIcon width={20} height={20} />
 					</button>
 					<button
-						onClick={() => write()}
+						onClick={() => {
+							write();
+							window.localStorage.setItem("finalists", [finalists]);
+						}}
 						className={`flex p-2 w-full  justify-center text-sm  rounded  bg-primaryColor dark:bg-primaryColor/70 shadow-md transition-all ${
-							finalists[0].length == 42 ? "" : "hidden"
+							finalists[0].length == 42 && finalists.length > 1 ? "" : "hidden"
 						} `}
 					>
 						Submit
