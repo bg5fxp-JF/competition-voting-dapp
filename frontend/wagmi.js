@@ -8,7 +8,10 @@ const { chains, publicClient } = configureChains(
 	[localhost, sepolia],
 	// [publicProvider()]
 	/**sepolia,*/
-	[alchemyProvider({ apiKey: process.env.ALCHEMY_API }), publicProvider()]
+	[
+		alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API }),
+		publicProvider(),
+	]
 );
 
 export const config = createConfig({
