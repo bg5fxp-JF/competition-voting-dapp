@@ -37,13 +37,11 @@ export default function EndButton({ isDisabled }) {
 			disabled={isDisabled}
 			onClick={() => {
 				write();
-				window.localStorage.removeItem("judges");
-				window.localStorage.removeItem("finalists");
-				window.localStorage.removeItem("judgeWeight");
-				window.localStorage.removeItem("audienceWeight");
 			}}
-			className={`mx-auto p-2 rounded border border-primaryColor dark:bg-primaryColor/70 shadow-md ${
-				isDisabled && "bg-[#fafafa] dark:bg-primaryColor/10"
+			className={`mx-auto p-2 rounded border border-primaryColor  shadow-md ${
+				isDisabled
+					? "bg-[#fafafa] dark:bg-primaryColor/10"
+					: "dark:bg-primaryColor/70"
 			}  `}
 		>
 			End Voting

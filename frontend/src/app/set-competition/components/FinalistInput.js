@@ -1,7 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { MinusIcon, PlusIcon } from "@radix-ui/react-icons";
-import { useAccount, useContractWrite, useNetwork } from "wagmi";
+import {
+	useAccount,
+	useContractRead,
+	useContractWrite,
+	useNetwork,
+} from "wagmi";
 import { abi, contractAddresses } from "@/app/constants";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -35,6 +40,13 @@ export default function FinalistInput({ isDisabled }) {
 		},
 	});
 
+	const { data } = useContractRead({
+		address: competitionAddress,
+		abi: abi,
+		functionName: "getFinalists",
+		watch: true,
+	});
+
 	function handleFinalistAdd() {
 		setFinalists([...finalists, ""]);
 	}
@@ -52,8 +64,9 @@ export default function FinalistInput({ isDisabled }) {
 	}
 
 	useEffect(() => {
-		if (isDisabled)
-			setFinalists(window.localStorage.getItem("finalists").split(","));
+		if (isDisabled) {
+			if (data != undefined) setFinalists(data);
+		}
 	}, [isDisabled]);
 
 	return (
@@ -101,7 +114,6 @@ export default function FinalistInput({ isDisabled }) {
 					<button
 						onClick={() => {
 							write();
-							window.localStorage.setItem("finalists", [finalists]);
 						}}
 						className={`flex p-2 w-full  justify-center text-sm  rounded  bg-primaryColor dark:bg-primaryColor/70 shadow-md transition-all ${
 							finalists[0].length == 42 && finalists.length > 1 ? "" : "hidden"

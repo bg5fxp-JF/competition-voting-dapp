@@ -2,7 +2,12 @@
 import { abi, contractAddresses } from "@/app/constants";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
-import { useAccount, useContractWrite, useNetwork } from "wagmi";
+import {
+	useAccount,
+	useContractReads,
+	useContractWrite,
+	useNetwork,
+} from "wagmi";
 
 export default function WeightageInput({ isDisabled }) {
 	const [judgeWeight, setJudgeWeight] = useState(1);
@@ -35,10 +40,28 @@ export default function WeightageInput({ isDisabled }) {
 		},
 	});
 
+	const { data } = useContractReads({
+		contracts: [
+			{
+				address: competitionAddress,
+				abi: abi,
+				functionName: "getJudgeWeight",
+			},
+			{
+				address: competitionAddress,
+				abi: abi,
+				functionName: "getAudienceWeight",
+			},
+		],
+		watch: true,
+	});
+
 	useEffect(() => {
 		if (isDisabled) {
-			setJudgeWeight(window.localStorage.getItem("judgeWeight"));
-			setAudienceWeight(window.localStorage.getItem("audienceWeight"));
+			if (data != undefined) {
+				setJudgeWeight(Number(data[0].result));
+				setAudienceWeight(Number(data[1].result));
+			}
 		}
 	}, [isDisabled]);
 
@@ -88,8 +111,6 @@ export default function WeightageInput({ isDisabled }) {
 				<button
 					onClick={() => {
 						write();
-						window.localStorage.setItem("judgeWeight", judgeWeight);
-						window.localStorage.setItem("audienceWeight", audienceWeight);
 					}}
 					className="flex p-2 w-full  justify-center text-sm  rounded  bg-primaryColor dark:bg-primaryColor/70 shadow-md transition-all"
 				>

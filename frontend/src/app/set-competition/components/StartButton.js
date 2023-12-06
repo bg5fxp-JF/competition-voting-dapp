@@ -36,8 +36,10 @@ export default function StartButton({ isDisabled }) {
 		<button
 			disabled={isDisabled}
 			onClick={() => write()}
-			className={`mx-auto p-2 rounded border border-primaryColor dark:bg-primaryColor/70 shadow-md ${
-				isDisabled && "bg-[#fafafa] dark:bg-primaryColor/10"
+			className={`mx-auto p-2 rounded border border-primaryColor  shadow-md ${
+				isDisabled
+					? "bg-[#fafafa] dark:bg-primaryColor/10"
+					: "dark:bg-primaryColor/70"
 			}  `}
 		>
 			Start Voting

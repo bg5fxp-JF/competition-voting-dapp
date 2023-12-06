@@ -1,7 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { MinusIcon, PlusIcon } from "@radix-ui/react-icons";
-import { useAccount, useContractWrite, useNetwork } from "wagmi";
+import {
+	useAccount,
+	useContractRead,
+	useContractWrite,
+	useNetwork,
+} from "wagmi";
 import { abi, contractAddresses } from "@/app/constants";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -35,6 +40,13 @@ export default function JudgesInput({ isDisabled }) {
 		},
 	});
 
+	const { data } = useContractRead({
+		address: competitionAddress,
+		abi: abi,
+		functionName: "getJudges",
+		watch: true,
+	});
+
 	function handleJudgeAdd() {
 		setJudges([...judges, ""]);
 	}
@@ -52,7 +64,10 @@ export default function JudgesInput({ isDisabled }) {
 	}
 
 	useEffect(() => {
-		if (isDisabled) setJudges(window.localStorage.getItem("judges").split(","));
+		if (isDisabled) {
+			if (data != undefined) setJudges(data);
+		}
+		// setJudges(window.localStorage.getItem("judges").split(","));
 	}, [isDisabled]);
 
 	return (
@@ -101,7 +116,6 @@ export default function JudgesInput({ isDisabled }) {
 					<button
 						onClick={() => {
 							write();
-							window.localStorage.setItem("judges", judges);
 						}}
 						className={`flex p-2 w-full  justify-center text-sm  rounded  bg-primaryColor dark:bg-primaryColor/70 shadow-md transition-all ${
 							judges[0].length == 42 ? "" : "hidden"
