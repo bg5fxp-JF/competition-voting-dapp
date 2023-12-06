@@ -1,5 +1,3 @@
-import React from "react";
-
 import Finalists from "./components/Finalists";
 
 export default function page() {
