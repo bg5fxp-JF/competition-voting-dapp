@@ -26,14 +26,16 @@ contract Competition {
     // State Variavles
     address private immutable i_owner;
     VotingStatus private votingStatus;
+    uint256 private mappingIndex;
 
-    mapping(address => address) vote;
-    mapping(address => bool) hasVoted;
-    mapping(address => bool) isJudge;
-    mapping(address => bool) isApprovedForOwnerCapabilities;
-    mapping(address => uint256) finalistJudgeVotes;
-    mapping(address => uint256) finalistAudienceVotes;
+    mapping(uint256 => mapping(address => address)) vote;
+    mapping(uint256 => mapping(address => bool)) hasVoted;
+    mapping(uint256 => mapping(address => bool)) isJudge;
+    mapping(uint256 => mapping(address => bool)) isApprovedForOwnerCapabilities;
+    mapping(uint256 => mapping(address => uint256)) finalistJudgeVotes;
+    mapping(uint256 => mapping(address => uint256)) finalistAudienceVotes;
     address[] private voters;
+    address[] private judges;
     address[] private finalists;
     address[] private winners;
     address[] private approvedAdresses;
@@ -60,6 +62,7 @@ contract Competition {
             hasSelectedFinalists: false,
             hasStartedVoting: false
         });
+        mappingIndex = 0;
     }
 
     modifier onlyOwner() {
@@ -68,25 +71,25 @@ contract Competition {
     }
 
     modifier onlyApproved() {
-        if (!(isApprovedForOwnerCapabilities[msg.sender] || msg.sender == i_owner)) revert NotApproved();
+        if (!(isApprovedForOwnerCapabilities[mappingIndex][msg.sender] || msg.sender == i_owner)) revert NotApproved();
         _;
     }
 
     function getCapabilites() public {
         if (msg.sender == i_owner) revert AlreadyOwner();
-        if (isJudge[msg.sender]) revert AlreadyJudge();
-        if (finalistAudienceVotes[msg.sender] > 0 || finalistJudgeVotes[msg.sender] > 0) {
+        if (isJudge[mappingIndex][msg.sender]) revert AlreadyJudge();
+        if (finalistAudienceVotes[mappingIndex][msg.sender] > 0 || finalistJudgeVotes[mappingIndex][msg.sender] > 0) {
             revert AlreadyFinalist();
         }
-        if (isApprovedForOwnerCapabilities[msg.sender]) revert AlreadyApproved();
-        isApprovedForOwnerCapabilities[msg.sender] = true;
+        if (isApprovedForOwnerCapabilities[mappingIndex][msg.sender]) revert AlreadyApproved();
+        isApprovedForOwnerCapabilities[mappingIndex][msg.sender] = true;
 
         emit CapabilitiesGranted(msg.sender);
     }
 
     function removeCapabilites(address adr) public onlyOwner {
-        if (!isApprovedForOwnerCapabilities[adr]) revert NotApproved();
-        isApprovedForOwnerCapabilities[adr] = false;
+        if (!isApprovedForOwnerCapabilities[mappingIndex][adr]) revert NotApproved();
+        isApprovedForOwnerCapabilities[mappingIndex][adr] = false;
 
         emit CapabilitiesRemoved(adr);
     }
@@ -98,12 +101,16 @@ contract Competition {
         if (arrayOfAddresses.length > 3) revert TooBig();
 
         for (uint256 i; i < arrayOfAddresses.length; i++) {
-            if (finalistAudienceVotes[arrayOfAddresses[i]] > 0 || finalistJudgeVotes[arrayOfAddresses[i]] > 0) {
+            if (
+                finalistAudienceVotes[mappingIndex][arrayOfAddresses[i]] > 0
+                    || finalistJudgeVotes[mappingIndex][arrayOfAddresses[i]] > 0
+            ) {
                 revert AlreadyFinalist();
             }
             if (arrayOfAddresses[i] == i_owner) revert AlreadyOwner();
-            if (isApprovedForOwnerCapabilities[arrayOfAddresses[i]]) revert AlreadyApproved();
-            isJudge[arrayOfAddresses[i]] = true;
+            if (isApprovedForOwnerCapabilities[mappingIndex][arrayOfAddresses[i]]) revert AlreadyApproved();
+            isJudge[mappingIndex][arrayOfAddresses[i]] = true;
+            judges.push(arrayOfAddresses[i]);
         }
 
         votingStatus.hasSelectedJudges = true;
@@ -130,11 +137,11 @@ contract Competition {
         if (arrayOfAddresses.length > 4) revert TooBig();
 
         for (uint256 i; i < arrayOfAddresses.length; i++) {
-            if (isJudge[arrayOfAddresses[i]]) revert AlreadyJudge();
+            if (isJudge[mappingIndex][arrayOfAddresses[i]]) revert AlreadyJudge();
             if (arrayOfAddresses[i] == i_owner) revert AlreadyOwner();
-            if (isApprovedForOwnerCapabilities[arrayOfAddresses[i]]) revert AlreadyApproved();
-            finalistJudgeVotes[arrayOfAddresses[i]] = 1;
-            finalistAudienceVotes[arrayOfAddresses[i]] = 1;
+            if (isApprovedForOwnerCapabilities[mappingIndex][arrayOfAddresses[i]]) revert AlreadyApproved();
+            finalistJudgeVotes[mappingIndex][arrayOfAddresses[i]] = 1;
+            finalistAudienceVotes[mappingIndex][arrayOfAddresses[i]] = 1;
             finalists.push(arrayOfAddresses[i]);
         }
 
@@ -157,9 +164,12 @@ contract Competition {
     function castVote(address finalistAddress) public {
         if (!votingStatus.hasStartedVoting) revert NotReady();
         // if (finalistAudienceVotes[msg.sender] > 0 || finalistJudgeVotes[msg.sender] > 0) revert CannotVote();
-        if (finalistAudienceVotes[finalistAddress] < 1 || finalistJudgeVotes[finalistAddress] < 1) revert NotFinalist();
-        vote[msg.sender] = finalistAddress;
-        if (!hasVoted[msg.sender]) voters.push(msg.sender);
+        if (
+            finalistAudienceVotes[mappingIndex][finalistAddress] < 1
+                || finalistJudgeVotes[mappingIndex][finalistAddress] < 1
+        ) revert NotFinalist();
+        vote[mappingIndex][msg.sender] = finalistAddress;
+        if (!hasVoted[mappingIndex][msg.sender]) voters.push(msg.sender);
 
         emit VoteCast(msg.sender, finalistAddress);
     }
@@ -173,16 +183,16 @@ contract Competition {
         votingStatus.hasStartedVoting = false;
 
         for (uint256 i; i < voters.length; i++) {
-            if (isJudge[voters[i]]) {
-                finalistJudgeVotes[vote[voters[i]]]++;
+            if (isJudge[mappingIndex][voters[i]]) {
+                finalistJudgeVotes[mappingIndex][vote[mappingIndex][voters[i]]]++;
             } else {
-                finalistAudienceVotes[vote[voters[i]]]++;
+                finalistAudienceVotes[mappingIndex][vote[mappingIndex][voters[i]]]++;
             }
         }
         uint256 highestVotes;
         for (uint256 i; i < finalists.length; i++) {
-            uint256 totalVotes = (finalistJudgeVotes[finalists[i]] * judgeWeight)
-                + (finalistAudienceVotes[finalists[i]] * audienceWeight);
+            uint256 totalVotes = (finalistJudgeVotes[mappingIndex][finalists[i]] * judgeWeight)
+                + (finalistAudienceVotes[mappingIndex][finalists[i]] * audienceWeight);
             if (totalVotes == highestVotes) {
                 highestVotes = totalVotes;
                 winners.push(finalists[i]);
@@ -195,6 +205,15 @@ contract Competition {
                 }
             }
         }
+
+        judges = new address[](0);
+        finalists = new address[](0);
+        voters = new address[](0);
+        approvedAdresses = new address[](0);
+        judgeWeight = 1;
+        audienceWeight = 1;
+
+        mappingIndex++;
 
         emit VotingEnded();
         emit WinnersDeclared(winners);
@@ -217,10 +236,14 @@ contract Competition {
 
     function getIsApproved(address adr) public view returns (bool) {
         if (adr == i_owner) return true;
-        return isApprovedForOwnerCapabilities[adr];
+        return isApprovedForOwnerCapabilities[mappingIndex][adr];
     }
 
-    function getVotingStatus() public view returns (VotingStatus memory) {
+    function getVotingStatus() public view returns (bool) {
+        return votingStatus.hasStartedVoting;
+    }
+
+    function getVotingStatusStruct() public view returns (VotingStatus memory) {
         return votingStatus;
     }
 
@@ -233,25 +256,39 @@ contract Competition {
     }
 
     function getCurrentVote() public view returns (address) {
-        return vote[msg.sender];
+        return vote[mappingIndex][msg.sender];
     }
 
     function getVoters() public view returns (address[] memory) {
         return voters;
     }
 
+    function getFinalists() public view returns (address[] memory) {
+        return finalists;
+    }
+
+    function getJudges() public view returns (address[] memory) {
+        return judges;
+    }
+
     function getJudgeVotesOfFinalist(address finalist) public view returns (uint256) {
-        if (finalistAudienceVotes[finalist] < 1 || finalistJudgeVotes[finalist] < 1) revert NotFinalist();
-        return finalistJudgeVotes[finalist] - 1;
+        if (finalistAudienceVotes[mappingIndex][finalist] < 1 || finalistJudgeVotes[mappingIndex][finalist] < 1) {
+            revert NotFinalist();
+        }
+        return finalistJudgeVotes[mappingIndex][finalist] - 1;
     }
 
     function getAudienceVotesOfFinalist(address finalist) public view returns (uint256) {
-        if (finalistAudienceVotes[finalist] < 1 || finalistJudgeVotes[finalist] < 1) revert NotFinalist();
-        return finalistAudienceVotes[finalist] - 1;
+        if (finalistAudienceVotes[mappingIndex][finalist] < 1 || finalistJudgeVotes[mappingIndex][finalist] < 1) {
+            revert NotFinalist();
+        }
+        return finalistAudienceVotes[mappingIndex][finalist] - 1;
     }
 
     function getTotalVotesOfFinalist(address finalist) public view returns (uint256) {
-        if (finalistAudienceVotes[finalist] < 1 || finalistJudgeVotes[finalist] < 1) revert NotFinalist();
-        return (finalistJudgeVotes[finalist] + finalistAudienceVotes[finalist]) - 2;
+        if (finalistAudienceVotes[mappingIndex][finalist] < 1 || finalistJudgeVotes[mappingIndex][finalist] < 1) {
+            revert NotFinalist();
+        }
+        return (finalistJudgeVotes[mappingIndex][finalist] + finalistAudienceVotes[mappingIndex][finalist]) - 2;
     }
 }

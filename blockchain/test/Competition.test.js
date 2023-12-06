@@ -28,7 +28,7 @@ describe("Competition Unit Tests", function () {
 				false /* hasStartedVoting */,
 			];
 			assert.equal(
-				await competition.getVotingStatus(),
+				await competition.getVotingStatusStruct(),
 				expectedStatus.toString()
 			);
 		});
@@ -96,7 +96,7 @@ describe("Competition Unit Tests", function () {
 
 			await competition.selectJudges(judges);
 			assert.equal(
-				await competition.getVotingStatus(),
+				await competition.getVotingStatusStruct(),
 				expectedStatus.toString()
 			);
 		});
@@ -114,7 +114,7 @@ describe("Competition Unit Tests", function () {
 
 			await competition_account1.selectJudges(judges);
 			assert.equal(
-				await competition_account1.getVotingStatus(),
+				await competition_account1.getVotingStatusStruct(),
 				expectedStatus.toString()
 			);
 		});
@@ -167,7 +167,7 @@ describe("Competition Unit Tests", function () {
 
 			await competition.inputWeightage(1, 1);
 			assert.equal(
-				await competition.getVotingStatus(),
+				await competition.getVotingStatusStruct(),
 				expectedStatus.toString()
 			);
 		});
@@ -249,7 +249,7 @@ describe("Competition Unit Tests", function () {
 
 			await competition.selectFinalists(finalists);
 			assert.equal(
-				await competition.getVotingStatus(),
+				await competition.getVotingStatusStruct(),
 				expectedStatus.toString()
 			);
 		});
@@ -267,7 +267,7 @@ describe("Competition Unit Tests", function () {
 
 			await competition_account1.selectFinalists(finalists);
 			assert.equal(
-				await competition_account1.getVotingStatus(),
+				await competition_account1.getVotingStatusStruct(),
 				expectedStatus.toString()
 			);
 		});
@@ -354,7 +354,7 @@ describe("Competition Unit Tests", function () {
 			await competition.startVoting();
 
 			assert.equal(
-				await competition.getVotingStatus(),
+				await competition.getVotingStatusStruct(),
 				expectedStatus.toString()
 			);
 		});
@@ -378,7 +378,7 @@ describe("Competition Unit Tests", function () {
 			await competition_account1.startVoting();
 
 			assert.equal(
-				await competition_account1.getVotingStatus(),
+				await competition_account1.getVotingStatusStruct(),
 				expectedStatus.toString()
 			);
 		});
@@ -500,7 +500,7 @@ describe("Competition Unit Tests", function () {
 				await competition.endVoting();
 
 				assert.equal(
-					await competition.getVotingStatus(),
+					await competition.getVotingStatusStruct(),
 					expectedStatus.toString()
 				);
 			});
