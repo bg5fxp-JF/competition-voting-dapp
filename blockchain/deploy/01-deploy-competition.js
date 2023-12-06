@@ -10,11 +10,14 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
 	log("Deploying Competition Contract...");
 
+	let blocksCon = 1;
+	if (!network.name.includes(developmentChains)) blocksCon = 6;
+
 	const competition = await deploy("Competition", {
 		from: deployer,
 		ars: [],
 		log: true,
-		waitConfirmations: network.config.waitConfirmations,
+		waitConfirmations: blocksCon,
 	});
 
 	log("============================================================");
